@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日菜谱推荐</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .recipe-name {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .recipe-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .recipe-desc {
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .recipe-section {
+            margin-top: 20px;
+        }
+        .recipe-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .ingredients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .ingredient {
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        .steps {
+            counter-reset: step;
+        }
+        .step {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍳 每日菜谱推荐</h1>
+        <div id="recipeCard" class="card hidden">
+            <div id="recipeContent"></div>
+        </div>
+        <button class="btn" onclick="generateRecipe()">🎲 随机推荐一道菜</button>
+    </div>
+
+    <script>
+        const recipes = [
+            {
+                name: "番茄炒蛋",
+                tags: ["家常菜", "快手菜", "下饭菜"],
+                desc: "经典家常菜，酸甜可口，营养丰富，新手也能轻松驾驭。",
+                ingredients: ["鸡蛋 3个", "番茄 2个", "葱花 适量", "盐 适量", "糖 1勺", "食用油 适量"],
+                steps: ["番茄切块，鸡蛋打散加少许盐", "热锅倒油，油热后倒入蛋液炒熟盛出", "锅中留底油，放入番茄翻炒出汁", "加入糖和盐调味", "倒入炒好的鸡蛋翻炒均匀", "撒上葱花出锅"]
+            },
+            {
+                name: "红烧肉",
+                tags: ["经典", "硬菜", "下饭菜"],
+                desc: "色泽红亮，肥而不腻，入口即化，是很多人的心头爱。",
+                ingredients: ["五花肉 500g", "冰糖 30g", "生抽 2勺", "老抽 1勺", "料酒 2勺", "八角 2个", "桂皮 1小块", "姜片 5片"],
+                steps: ["五花肉切块，冷水下锅焯水", "锅中放少许油，加冰糖炒糖色", "放入肉块翻炒上色", "加入生抽、老抽、料酒", "加入八角、桂皮、姜片", "加热水没过肉，大火烧开转小火炖1小时", "大火收汁即可"]
+            },
+            {
+                name: "蒜蓉西兰花",
+                tags: ["素菜", "健康", "快手菜"],
+                desc: "清爽健康，营养美味，是减脂期的绝佳选择。",
+                ingredients: ["西兰花 1颗", "蒜 5瓣", "盐 适量", "蚝油 1勺", "食用油 适量"],
+                steps: ["西兰花切小朵，洗净沥干", "蒜切成蒜末", "锅中烧水，加少许盐和油，焯西兰花2分钟", "捞出沥干水分", "热锅倒油，爆香蒜末", "放入西兰花翻炒，加蚝油和盐调味"]
+            },
+            {
+                name: "宫保鸡丁",
+                tags: ["川菜", "下饭菜", "经典"],
+                desc: "酸甜微辣，鸡肉嫩滑，花生香脆，是一道百吃不厌的经典川菜。",
+                ingredients: ["鸡胸肉 300g", "花生米 50g", "干辣椒 10个", "花椒 1勺", "葱姜蒜 适量", "生抽 2勺", "醋 1勺", "糖 1勺", "料酒 1勺"],
+                steps: ["鸡胸肉切丁，加料酒、盐、淀粉腌制", "调碗汁：生抽、醋、糖、淀粉、水混合", "花生米炸至金黄捞出", "热锅倒油，放入干辣椒、花椒爆香", "放入鸡丁炒至变色", "加入葱姜蒜翻炒", "倒入碗汁炒匀", "最后加入花生米翻炒出锅"]
+            },
+            {
+                name: "清蒸鲈鱼",
+                tags: ["海鲜", "宴客菜", "清淡"],
+                desc: "鱼肉鲜嫩，清香四溢，做法简单却不失格调。",
+                ingredients: ["鲈鱼 1条", "葱 2根", "姜 1块", "蒸鱼豉油 3勺", "料酒 1勺", "食用油 适量"],
+                steps: ["鲈鱼处理干净，两面划刀", "鱼身抹料酒，铺上葱姜", "水开后放入鱼，大火蒸8-10分钟", "取出倒掉蒸出的水", "淋上蒸鱼豉油", "撒上葱丝，淋上热油即可"]
+            },
+            {
+                name: "麻婆豆腐",
+                tags: ["川菜", "下饭菜", "素食"],
+                desc: "麻辣鲜香，豆腐嫩滑，是一道超级下饭的经典川菜。",
+                ingredients: ["嫩豆腐 1块", "肉末 100g", "豆瓣酱 2勺", "花椒粉 适量", "蒜末 适量", "生抽 1勺", "淀粉 适量"],
+                steps: ["豆腐切块，用盐水焯一下", "热锅倒油，炒香肉末", "加入豆瓣酱炒出红油", "加入蒜末炒香", "加水烧开，放入豆腐", "加生抽调味，煮3分钟", "勾芡，撒花椒粉出锅"]
+            },
+            {
+                name: "可乐鸡翅",
+                tags: ["家常菜", "下饭菜", "孩子最爱"],
+                desc: "甜香浓郁，色泽诱人，做法简单却深受大人小孩喜爱。",
+                ingredients: ["鸡翅中 8个", "可乐 1罐", "生抽 2勺", "老抽 1勺", "姜片 5片", "料酒 1勺"],
+                steps: ["鸡翅洗净，两面划刀", "冷水下锅焯水去腥", "热锅少油，煎鸡翅至两面金黄", "加入姜片、料酒、生抽、老抽", "倒入可乐没过鸡翅", "大火烧开转中火炖15分钟", "大火收汁即可"]
+            },
+            {
+                name: "酸辣土豆丝",
+                tags: ["家常菜", "快手菜", "下饭菜"],
+                desc: "酸辣爽脆，开胃下饭，是最受欢迎的家常菜之一。",
+                ingredients: ["土豆 2个", "干辣椒 5个", "花椒 适量", "醋 2勺", "盐 适量", "葱花 适量"],
+                steps: ["土豆切细丝，用清水浸泡去淀粉", "热锅倒油，放入干辣椒、花椒爆香", "放入土豆丝大火翻炒", "加入醋快速翻炒均匀", "加盐调味", "撒上葱花出锅"]
+            }
+        ];
+
+        function generateRecipe() {
+            const recipe = recipes[Math.floor(Math.random() * recipes.length)];
+            const card = document.getElementById('recipeCard');
+            const content = document.getElementById('recipeContent');
+            
+            content.innerHTML = `
+                <div class="recipe-name">${recipe.name}</div>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    ${recipe.tags.map(tag => `<span class="recipe-tag">${tag}</span>`).join('')}
+                </div>
+                <div class="recipe-desc">${recipe.desc}</div>
+                <div class="recipe-section">
+                    <h3>📝 食材</h3>
+                    <div class="ingredients-list">
+                        ${recipe.ingredients.map(i => `<span class="ingredient">${i}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="recipe-section">
+                    <h3>👨‍🍳 做法</h3>
+                    <div class="steps">
+                        ${recipe.steps.map(s => `<div class="step">${s}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            card.classList.remove('hidden');
+            card.style.animation = 'none';
+            card.offsetHeight;
+            card.style.animation = 'fadeIn 0.5s ease';
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body>
+</html>
